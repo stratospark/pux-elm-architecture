@@ -2,15 +2,14 @@ module App.Layout where
 
 import App.Counter as Counter
 import App.Routes (Route(Home, NotFound))
-import Data.Array (modifyAt, drop)
-import Data.Maybe (fromMaybe)
-import Prelude (const, ($), map, (++), (+))
-import Pux.Html (button, Html, div, h1, p, text)
+import Data.Array (filter)
+import Prelude (map, ($), const, (++), (==), (/=), (+))
+import Pux.Html (Html, button, div, h1, p, text)
 import Pux.Html.Events (onClick)
 
 data Action
   = Insert
-  | Remove
+  | Remove ID
   | Modify ID Counter.Action
   | PageView Route
 
@@ -36,12 +35,15 @@ update Insert state =
       newCounters = state.counters ++ [newCounter]
   in
     state { counters = newCounters, nextID = state.nextID + 1 }
-update Remove state =
-  state { counters = drop 1 state.counters }
+update (Remove id) state =
+  state { counters = filter (\x -> x.id /= id) state.counters }
 update (Modify id action) state =
-  let newCounters = modifyAt id (\s -> s { state = Counter.update action s.state }) state.counters
-  in
-    state { counters = fromMaybe [] newCounters }
+  case action of
+    Counter.Remove -> update (Remove id) state
+    _ -> let
+           updateCounter c = if c.id == id then c { state = Counter.update action c.state } else c
+         in
+           state { counters = map updateCounter state.counters }
 
 view :: State -> Html Action
 view state =
@@ -52,8 +54,8 @@ view state =
     , case state.route of
         Home -> div
                   []
-                  ([ button [ onClick $ const Remove ] [ text "Remove" ]
-                  , button [ onClick $ const Insert ] [ text "Add" ]
+                  ([
+                    button [ onClick $ const Insert ] [ text "Add" ]
                   ] ++ (map viewCounter state.counters))
         NotFound -> App.NotFound.view state
     ]

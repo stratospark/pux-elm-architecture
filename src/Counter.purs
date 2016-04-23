@@ -4,7 +4,7 @@ import Prelude ((+), (-), const, show)
 import Pux.Html (Html, div, span, button, text)
 import Pux.Html.Events (onClick)
 
-data Action = Increment | Decrement
+data Action = Increment | Decrement | Remove
 
 type State = Int
 
@@ -14,6 +14,7 @@ init = 0
 update :: Action -> State -> State
 update Increment state = state + 1
 update Decrement state = state - 1
+update Remove state = state
 
 view :: State -> Html Action
 view state =
@@ -22,4 +23,5 @@ view state =
     [ button [ onClick (const Increment) ] [ text "Increment" ]
     , span [] [ text (show state) ]
     , button [ onClick (const Decrement) ] [ text "Decrement" ]
+    , button [ onClick (const Remove) ] [ text "X" ]
     ]
