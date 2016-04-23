@@ -2,32 +2,46 @@ module App.Layout where
 
 import App.Counter as Counter
 import App.Routes (Route(Home, NotFound))
-import Prelude (const, ($), map)
+import Data.Array (modifyAt, drop)
+import Data.Maybe (fromMaybe)
+import Prelude (const, ($), map, (++), (+))
 import Pux.Html (button, Html, div, h1, p, text)
 import Pux.Html.Events (onClick)
 
 data Action
-  = Top (Counter.Action)
-  | Bottom (Counter.Action)
-  | Reset
+  = Insert
+  | Remove
+  | Modify ID Counter.Action
   | PageView Route
+
+type ID = Int
+
+type LocalCounter = { id :: ID, state :: Counter.State }
 
 type State =
   { route :: Route
-  , topCount :: Counter.State
-  , bottomCount :: Counter.State }
+  , counters :: Array LocalCounter
+  , nextID :: ID }
 
 init :: State
 init =
   { route: NotFound
-  , topCount: Counter.init
-  , bottomCount: Counter.init }
+  , counters: []
+  , nextID: 0 }
 
 update :: Action -> State -> State
 update (PageView route) state = state { route = route }
-update (Top action) state = state { topCount = Counter.update action state.topCount }
-update (Bottom action) state = state { bottomCount = Counter.update action state.bottomCount }
-update Reset state = state { bottomCount = 0, topCount = 0 }
+update Insert state =
+  let newCounter = { id: state.nextID, state: Counter.init }
+      newCounters = state.counters ++ [newCounter]
+  in
+    state { counters = newCounters, nextID = state.nextID + 1 }
+update Remove state =
+  state { counters = drop 1 state.counters }
+update (Modify id action) state =
+  let newCounters = modifyAt id (\s -> s { state = Counter.update action s.state }) state.counters
+  in
+    state { counters = fromMaybe [] newCounters }
 
 view :: State -> Html Action
 view state =
@@ -38,8 +52,11 @@ view state =
     , case state.route of
         Home -> div
                   []
-                  [ map Top $ Counter.view state.topCount
-                  , map Bottom $ Counter.view state.bottomCount
-                  , button [ onClick $ const Reset ] [ text "RESET" ] ]
+                  ([ button [ onClick $ const Remove ] [ text "Remove" ]
+                  , button [ onClick $ const Insert ] [ text "Add" ]
+                  ] ++ (map viewCounter state.counters))
         NotFound -> App.NotFound.view state
     ]
+
+viewCounter :: LocalCounter -> Html Action
+viewCounter c = map (Modify c.id) $ Counter.view c.state
