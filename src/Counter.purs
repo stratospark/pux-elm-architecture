@@ -4,7 +4,10 @@ import Prelude ((+), (-), const, show)
 import Pux.Html (Html, div, span, button, text)
 import Pux.Html.Events (onClick)
 
-data Action = Increment | Decrement | Remove
+data Action
+  = Increment
+  | Decrement
+  | Remove
 
 type State = Int
 
