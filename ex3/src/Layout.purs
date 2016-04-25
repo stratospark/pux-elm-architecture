@@ -5,7 +5,7 @@ import App.Routes (Route(Home, NotFound))
 import Data.Array (modifyAt, drop)
 import Data.Maybe (fromMaybe)
 import Prelude (const, ($), map, (++), (+), (==))
-import Pux.Html (button, Html, div, h1, p, text)
+import Pux.Html (button, Html, div, h1, text)
 import Pux.Html.Events (onClick)
 
 data Action
@@ -48,8 +48,7 @@ view :: State -> Html Action
 view state =
   div
     []
-    [ h1 [] [ text "Pux Starter App" ]
-    , p [] [ text "Change src/Layout.purs and watch me hot-reload." ]
+    [ h1 [] [ text "Ex3: List of Counters" ]
     , case state.route of
         Home -> div
                   []

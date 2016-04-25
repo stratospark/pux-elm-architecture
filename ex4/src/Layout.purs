@@ -4,7 +4,7 @@ import App.Counter as Counter
 import App.Routes (Route(Home, NotFound))
 import Data.Array (filter)
 import Prelude (map, ($), const, (++), (==), (/=), (+))
-import Pux.Html (Html, button, div, h1, p, text)
+import Pux.Html (Html, button, div, h1, text)
 import Pux.Html.Events (onClick)
 
 data Action
@@ -49,8 +49,7 @@ view :: State -> Html Action
 view state =
   div
     []
-    [ h1 [] [ text "Pux Starter App" ]
-    , p [] [ text "Change src/Layout.purs and watch me hot-reload." ]
+    [ h1 [] [ text "Ex4: A Fancier List of Counters" ]
     , case state.route of
         Home -> div
                   []

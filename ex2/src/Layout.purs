@@ -33,8 +33,7 @@ view :: State -> Html Action
 view state =
   div
     []
-    [ h1 [] [ text "Pux Starter App" ]
-    , p [] [ text "Change src/Layout.purs and watch me hot-reload." ]
+    [ h1 [] [ text "Ex2: Pair of Counters" ]
     , case state.route of
         Home -> div
                   []
