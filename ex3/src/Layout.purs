@@ -4,7 +4,7 @@ import App.Counter as Counter
 import App.Routes (Route(Home, NotFound))
 import Data.Array (modifyAt, drop)
 import Data.Maybe (fromMaybe)
-import Prelude (const, ($), map, (++), (+))
+import Prelude (const, ($), map, (++), (+), (==))
 import Pux.Html (button, Html, div, h1, p, text)
 import Pux.Html.Events (onClick)
 
@@ -39,9 +39,10 @@ update Insert state =
 update Remove state =
   state { counters = drop 1 state.counters }
 update (Modify id action) state =
-  let newCounters = modifyAt id (\s -> s { state = Counter.update action s.state }) state.counters
+  let
+    updateCounter c = if c.id == id then c { state = Counter.update action c.state } else c
   in
-    state { counters = fromMaybe [] newCounters }
+    state { counters = map updateCounter state.counters }
 
 view :: State -> Html Action
 view state =
