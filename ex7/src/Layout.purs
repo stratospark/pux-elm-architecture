@@ -13,8 +13,7 @@ import Pux.Html.Attributes (type_, value, placeholder, name, style)
 import Pux.Html.Events (FormEvent, onChange, onSubmit)
 
 data Action
-  = Topic String
-  | TopicChange FormEvent
+  = TopicChange FormEvent
   | Create
   | Modify ID RandomGif.Action
   | PageView Route
@@ -38,11 +37,11 @@ init =
 
 update :: forall e. Action -> State -> EffModel State Action (ajax :: AJAX, dom :: DOM | e)
 update (PageView route) state = noEffects $ state { route = route }
-update (Topic topic) state = noEffects $ state { topic = topic }
 update (TopicChange ev) state = noEffects $ state { topic = ev.target.value }
 update Create state = noEffects $
   state { gifList = snoc state.gifList { id: state.nextID, state: RandomGif.init state.topic }
-        , nextID = state.nextID + 1 }
+        , nextID = state.nextID + 1
+        , topic = "" }
 update (Modify id action) state =
   let
     subUpdate entry =
