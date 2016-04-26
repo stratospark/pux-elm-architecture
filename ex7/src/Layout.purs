@@ -91,6 +91,14 @@ viewForm state = form
     , placeholder "What kind of gifs do you want?"
     , value state.topic
     , onChange TopicChange
+    , style
+      [
+        Tuple "width" "100%"
+      , Tuple "height" "40px"
+      , Tuple "padding" "10px"
+      , Tuple "font-size" "2em"
+      , Tuple "text-align" "center"  
+      ]
     ]
     []
   ]
