@@ -4,12 +4,12 @@ import App.RandomGif as RandomGif
 import App.Routes (Route(Home, NotFound))
 import DOM (DOM)
 import Data.Array (concat, snoc)
+import Data.Tuple (Tuple(Tuple))
 import Network.HTTP.Affjax (AJAX)
-import Prelude (map, ($), const, (++), (#), (==), (+))
+import Prelude (map, ($), const, (#), (==), (+))
 import Pux (mapState, mapEffects, EffModel, noEffects)
-import Pux.CSS (flex, display, style)
-import Pux.Html (input, form, text, h1, div, Html)
-import Pux.Html.Attributes (type_, value, placeholder, name)
+import Pux.Html (br, input, form, text, h1, div, Html)
+import Pux.Html.Attributes (type_, value, placeholder, name, style)
 import Pux.Html.Events (FormEvent, onChange, onSubmit)
 
 data Action
@@ -63,11 +63,22 @@ view state =
     [ h1 [] [ text "Ex7: List of Random GIF Viewers" ]
     , case state.route of
         Home -> div
-                    [ style $ do
-                        display flex ]
-                    ([
-                      viewForm state
-                    ] ++ map viewGif state.gifList)
+                  []
+                  [
+                    viewForm state
+                  , br [] []
+                  , div
+                    [ style
+                      [
+                        Tuple "display" "flex"
+                      , Tuple "flexDirection" "row"
+                      , Tuple "flexWrap" "wrap"
+                      , Tuple "justifyContent" "center"
+                      , Tuple "alignItems" "center"
+                      ]
+                    ]
+                    (map viewGif state.gifList)
+                  ]
         NotFound -> App.NotFound.view state
     ]
 
