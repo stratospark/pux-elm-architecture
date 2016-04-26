@@ -96,8 +96,8 @@ viewForm state = form
         Tuple "width" "100%"
       , Tuple "height" "40px"
       , Tuple "padding" "10px"
-      , Tuple "font-size" "2em"
-      , Tuple "text-align" "center"  
+      , Tuple "fontSize" "2em"
+      , Tuple "textAlign" "center"
       ]
     ]
     []
