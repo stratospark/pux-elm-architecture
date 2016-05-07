@@ -12,6 +12,7 @@
     "purescript-pux-devtool": "^2.0.0",
     "purescript-argonaut": "^0.12.0",
     "purescript-affjax": "^0.13.1",
-    "purescript-debug": "^0.1.5"
+    "purescript-debug": "^0.1.5",
+    "purescript-requestanimationframe": "^1.0.0"
   }
 }

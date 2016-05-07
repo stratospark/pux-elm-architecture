@@ -1,14 +1,13 @@
 module App.SpinSquare where
 
 import Prelude
-import Control.Monad.Aff (forkAff, later)
-import Control.Monad.Aff.AVar (AVAR, takeVar, putVar, makeVar)
-import Control.Monad.Eff.Class (liftEff)
+import Control.Monad.Aff (Aff, makeAff)
 import Control.Timer (TIMER)
-import Data.Int (round)
 import Data.Maybe (Maybe(Nothing, Just))
 import Data.Tuple (Tuple(Tuple))
 import Debug.Trace (spy)
+import DOM (DOM)
+import DOM.RequestAnimationFrame (requestAnimationFrame)
 import Pux (noEffects, EffModel)
 import Pux.Html (rect, g, svg, Html)
 import Pux.Html.Attributes (transform, style, ry, rx, y, x, viewBox, height, width)
@@ -16,6 +15,11 @@ import Pux.Html.Events (onClick)
 import Signal.Time (now, Time, second)
 
 type AnimationState = Maybe { prevClockTime :: Time, elapsedTime :: Time}
+
+tick :: forall eff. Aff (timer :: TIMER, dom :: DOM | eff) Time
+tick = makeAff \reject resolve -> do
+  time <- now
+  requestAnimationFrame $ (resolve time)
 
 type State =
   { angle :: Number
@@ -35,14 +39,12 @@ rotateStep = 45.0
 
 data Action = Spin | Tick Time
 
-update :: forall e. Action -> State -> EffModel State Action (timer :: TIMER, avar :: AVAR | e)
+update :: forall e. Action -> State -> EffModel State Action (dom :: DOM, timer :: TIMER | e)
 update Spin state =
   case state.animationState of
     Nothing -> { state: state
-               , effects: [ do
-                   t <- liftEff now
-                   return $ Tick t
-               ]}
+               , effects: [ Tick <$> tick ]
+               }
     Just {prevClockTime, elapsedTime} -> noEffects state
 
 update (Tick clockTime) state =
@@ -54,6 +56,7 @@ update (Tick clockTime) state =
   in
     if newElapsedTime > second then
       noEffects $ state { angle = state.angle + rotateStep
+                        , displayAngle = state.angle + rotateStep
                         , animationState = Nothing }
     else
       { state: state { angle = state.angle
@@ -61,18 +64,8 @@ update (Tick clockTime) state =
                       , animationState = Just { elapsedTime: newElapsedTime
                                               , prevClockTime: clockTime }
                       }
-      -- , effects: [ do
-      --     t <- liftEff now
-      --     v <- makeVar
-      --     forkAff $ later $ putVar v t
-      --     t' <- takeVar v
-      --     return $ Tick t'
-      -- ]
-      , effects: [ do
-          t <- liftEff now
-          return $ Tick t
-      ]
-    }
+      , effects: [ Tick <$> tick ]
+      }
 
 toOffset :: AnimationState -> State -> Number
 toOffset animationState state =
@@ -83,13 +76,13 @@ toOffset animationState state =
 view :: State -> Html Action
 view state =
   svg
-    [ width "200", height "200.0", viewBox "0 0 200 200" ]
+    [ width "200", height "200", viewBox "0 0 200 200" ]
     [ g
       [ transform $ "translate(100, 100) rotate(" ++ show state.displayAngle ++ ")"
       , onClick $ const Spin ]
       [ rect
-        [ x "0"
-        , y "0"
+        [ x "-50"
+        , y "-50"
         , width "100"
         , height "100"
         , rx "15"

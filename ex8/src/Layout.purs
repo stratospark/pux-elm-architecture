@@ -1,16 +1,12 @@
 module App.Layout where
 
 import App.SpinSquare as SpinSquare
-import App.Routes (Route(Home, NotFound))
-import Control.Monad.Aff.AVar (AVAR)
+import App.Routes (Route(NotFound))
 import Control.Timer (TIMER)
-import Data.Int (toNumber)
-import Math (max)
-import Prelude ((#), (+), ($), map, (++), show)
+import DOM (DOM)
+import Prelude ((#), ($), map)
 import Pux (mapEffects, mapState, noEffects, EffModel)
-import Pux.Html (img, Html, div, h1, p, text)
-import Pux.Html.Attributes (width, src)
-import Signal.Time (Time)
+import Pux.Html (Html, div, h1, text)
 
 data Action
   = Child (SpinSquare.Action)
@@ -30,7 +26,7 @@ init =
   , square2: SpinSquare.init
 }
 
-update :: forall e. Action -> State -> EffModel State Action (timer :: TIMER, avar :: AVAR | e)
+update :: forall e. Action -> State -> EffModel State Action (dom :: DOM, timer :: TIMER | e)
 update (PageView route) state = noEffects $ state { route = route }
 update (Child action) state =
   SpinSquare.update action state.square
