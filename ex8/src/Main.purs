@@ -2,7 +2,6 @@ module Main where
 
 import App.Layout (Action(PageView), State, view, update)
 import App.Routes (match)
-import Control.Monad.Aff.AVar (AVAR)
 import Control.Monad.Eff (Eff)
 import Control.Timer (TIMER)
 import DOM (DOM)
@@ -11,7 +10,7 @@ import Pux (App, CoreEffects, renderToDOM)
 import Pux.Router (sampleUrl)
 import Signal ((~>))
 
-type AppEffects = (dom :: DOM, timer :: TIMER, avar :: AVAR)
+type AppEffects = (dom :: DOM, timer :: TIMER)
 
 -- | App configuration
 -- config :: forall e.
