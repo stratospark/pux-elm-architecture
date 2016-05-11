@@ -7,7 +7,7 @@ import DOM (DOM)
 import Data.Array (concat, snoc)
 import Data.Tuple (Tuple(Tuple))
 import Network.HTTP.Affjax (AJAX)
-import Prelude (map, ($), const, (#), (==), (+))
+import Prelude (map, ($), const, (#), (==), (+), return)
 import Pux (mapState, mapEffects, EffModel, noEffects)
 import Pux.Html (br, input, form, text, h1, div, Html)
 import Pux.Html.Attributes (type_, value, placeholder, name, style)
@@ -36,10 +36,6 @@ init =
   , gifList: []
   , nextID: 0 }
 
-delay :: forall e a. a -> Aff (ajax :: AJAX | e) a
-delay action = makeAff \reject resolve -> do
-  resolve action
-
 update :: forall e. Action -> State -> EffModel State Action (ajax :: AJAX, dom :: DOM | e)
 update (PageView route) state = noEffects $ state { route = route }
 update (TopicChange ev) state = noEffects $ state { topic = ev.target.value }
@@ -47,7 +43,7 @@ update Create state =
   { state: state { gifList = snoc state.gifList { id: state.nextID, state: RandomGif.init state.topic }
         , nextID = state.nextID + 1
         , topic = "" }
-  , effects: [ delay $ Modify state.nextID RandomGif.RequestMore ] }
+  , effects: [ return $ Modify state.nextID RandomGif.RequestMore ] }
 update (Modify id action) state =
   let
     subUpdate entry =
